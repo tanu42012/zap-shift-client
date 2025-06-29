@@ -9,10 +9,13 @@ import {
   AiOutlineDollarCircle,
   AiOutlineDelete
 } from 'react-icons/ai';
+import { useNavigate } from 'react-router';
 
 const MyParcels = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
+  const navigate=useNavigate();
+
 
   // ───────────────────────────────────────────────────
   // fetch parcels for this user
@@ -47,7 +50,7 @@ const MyParcels = () => {
 
       try {
         await axiosSecure.delete(`/parcels/${parcel._id}`);
-       
+
         Swal.fire('Deleted!', 'Parcel removed successfully.', 'success');
         refetch();                         // 🔄 refresh list
       } catch (err) {
@@ -55,6 +58,12 @@ const MyParcels = () => {
         Swal.fire('Error', 'Failed to delete parcel.', 'error');
       }
     });
+
+   
+  };
+  const handlePay = (id) => {
+    console.log("Paying for parcel with ID:", id);
+    navigate(`/dashboard/payment/${id}`);
   };
 
   if (isLoading) return <p className="text-center p-8">Loading…</p>;
@@ -101,7 +110,7 @@ const MyParcels = () => {
                 <button
                   className="btn btn-sm btn-outline"
                   title="View details"
-                  /* onClick={() => … } */               /* hook up if needed */
+                /* onClick={() => … } */               /* hook up if needed */
                 >
                   <AiOutlineEye />
                 </button>
@@ -109,7 +118,7 @@ const MyParcels = () => {
                 <button
                   className="btn btn-sm btn-primary"
                   disabled={p.payment_status === 'paid'}
-                  /* onClick={() => … } */               /* hook up if needed */
+                  onClick={() => handlePay(p._id)}
                   title="Pay"
                 >
                   <AiOutlineDollarCircle />

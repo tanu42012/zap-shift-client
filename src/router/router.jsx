@@ -3,12 +3,14 @@ import RootLayout from "../Layout/RootLayout";
 import Home from "../Pages/Home/Home/Home";
 import AuthLayout from "../Layout/AuthLayout";
 import Login from "../Pages/Home/Authtentication/Login/Login";
-import Register from "../Pages/Home/Authtentication/Register/Register";
+
 import Coverage from "../Pages/Home/Coverage/Coverage";
 import PrivateRoute from "../routes/PrivateRoute";
 import SendParcel from "../Pages/SendPercel/SendParcel";
 import DashboardLayout from "../Layout/DashboardLayout";
 import MyParcels from "../Pages/Dashboard/MyParcels/MyParcels";
+import Register from "../Pages/Home/Authtentication/Register/Register";
+import Payment from "../Pages/Dashboard/Payment/Payment";
 
 export const router = createBrowserRouter([
     {
@@ -60,6 +62,11 @@ export const router = createBrowserRouter([
           path:'myParcels',
           Component: MyParcels,
 
+        },
+        {
+          path: 'payment/:parcelId',
+
+          Component: Payment,
         }
       ]
      
