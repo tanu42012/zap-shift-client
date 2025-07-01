@@ -11,6 +11,11 @@ import DashboardLayout from "../Layout/DashboardLayout";
 import MyParcels from "../Pages/Dashboard/MyParcels/MyParcels";
 import Register from "../Pages/Home/Authtentication/Register/Register";
 import Payment from "../Pages/Dashboard/Payment/Payment";
+import PaymentHistory from "../Pages/Dashboard/PaymentHistory/PaymentHistory";
+import TrackParcel from "../Pages/Dashboard/TrackParcel/TrackParcel";
+import BeARider from "../Pages/Dashboard/BeARider/BeARider";
+import PendingRiders from "../Pages/Dashboard/PendingRiders/PendingRiders";
+import ActiveRiders from "../Pages/Dashboard/ActiveRiders/ActiveRiders";
 
 export const router = createBrowserRouter([
     {
@@ -25,6 +30,14 @@ export const router = createBrowserRouter([
           path:'coverage',
           Component:Coverage,
           loader:()=>fetch('./serviceCenter.json')
+        },
+        {
+          path:'beARider',
+          element:<PrivateRoute>
+            <BeARider></BeARider>
+          </PrivateRoute>,
+           loader:()=>fetch('./serviceCenter.json')
+
         },
         {
           path:'sendParcel',
@@ -67,6 +80,23 @@ export const router = createBrowserRouter([
           path: 'payment/:parcelId',
 
           Component: Payment,
+        },
+        {
+          path:'paymentHistory',
+          Component:PaymentHistory,
+        },
+        {
+          path:'track',
+          Component:TrackParcel,
+        },
+        {
+          path: "pending-riders",
+          Component:PendingRiders
+          
+        },
+        {
+          path:'active-riders',
+          Component :ActiveRiders,
         }
       ]
      

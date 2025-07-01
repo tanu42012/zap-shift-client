@@ -27,6 +27,7 @@ const Navbar = () => {
             </>
         }
 
+        <li><NavLink to='/beARider'>Be A Rider</NavLink></li>
         <li><NavLink to='/about'>About Us</NavLink></li>
     </>
     return (
@@ -44,9 +45,9 @@ const Navbar = () => {
                        }
                     </ul>
                 </div>
-                <a className="btn btn-ghost text-xl">
+                <span className="btn btn-ghost text-xl">
                     <ProFastLogo></ProFastLogo>
-                </a>
+                </span>
             </div>
             <div className="navbar-center hidden lg:flex">
                 <ul className="menu menu-horizontal px-1">

@@ -1,8 +1,10 @@
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import useAxiosSecure from '../../../Hooks/useAxiosSecure';
+import useAuth from '../../../Hooks/useAuth';
+import Swal from 'sweetalert2';
 
 
 
@@ -14,6 +16,8 @@ const PaymentForm = () => {
     const stripe=useStripe();
     const elements=useElements();
     const {parcelId}=useParams();
+    const {user}= useAuth();
+    const navigate=useNavigate();
     // console.log(parcelId);
     const axiosSecure=useAxiosSecure();
     const [error,setError]=useState('');
@@ -53,37 +57,58 @@ const PaymentForm = () => {
         else{
             setError('');
             console.log('payment method', paymentMethod);
-        }
-        //step-2 create payment intent
-        // const result=await axiosSecure.post('/create-payment-intent',{
-        //     amountInCents,
-        //     parcelId
-
-
-        // })
+             //step-2 create payment intent
+        
         const res = await axiosSecure.post('/create-payment-intent', {
-             amountInCents,  // ✅ Use 'amount' as Stripe expects
-            parcelId                // Optional: use if your server handles this
-          });
-          const clientSecret=res.data.clientSecret;
-          const result=await stripe.confirmCardPayment(clientSecret,{
-            payment_method:{
-                card:elements.getElement(CardElement),
-                billing_details:{
-                    name:'jenny rosen',
-                }
-            }
-          });
-          if(result.error){
-            console.log(result.error.message);
+            amountInCents,  // ✅ Use 'amount' as Stripe expects
+           parcelId                // Optional: use if your server handles this
+         });
+         const clientSecret=res.data.clientSecret;
+        //  step-3 confirm payment
 
-          }
-          else{
-            if(result.paymentIntent.status==='succeeded'){
-                console.log('payment succeeded');
-                console.log(result)
-            }
-          }
+         const result=await stripe.confirmCardPayment(clientSecret,{
+           payment_method:{
+               card:elements.getElement(CardElement),
+               billing_details:{
+                   name:user.displayName,
+                   email: user.email
+               }
+           }
+         });
+         if(result.error){
+          setError(result.error.message);
+
+
+         }
+         else{
+            setError('');
+           if(result.paymentIntent.status==='succeeded'){
+               console.log('payment succeeded');
+               console.log(result)
+               const paymentData={
+                parcelId,
+                userEmail:user.email,
+                amount,
+                transactionId:result.paymentIntent.id,
+                paymentMethod:result.paymentIntent.payment_method_types,
+               }
+               const paymentRes= await axiosSecure.post('/payments',paymentData);
+               if(paymentRes.data.insertedId){
+                // console.log('payment successfully')
+                Swal.fire({
+                    title: 'Payment Successful!',
+                    text: `Transaction ID: ${result.paymentIntent.id}`,
+                    icon: 'success',
+                    confirmButtonText: 'Go to My Parcels'
+                  }).then(() => {
+                    // 🚀 Redirect after user clicks confirm
+                    navigate('/dashboard/myParcels'); // change to your route
+                  });
+               }
+           }
+         }
+        }
+       
          
         // console.log('res for intent',res)
     

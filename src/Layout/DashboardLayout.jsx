@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router';
 import ProFastLogo from '../Pages/Home/Shared/ProfastLogo/ProFastLogo';
+import { FaHome, FaBox, FaHistory, FaSearchLocation, FaUserEdit,FaUserCheck, FaClock } from 'react-icons/fa';
 
 const DashboardLayout = () => {
     return (
@@ -27,11 +28,11 @@ const DashboardLayout = () => {
                         </label>
                     </div>
                     <div className="mx-2 flex-1 px-2 lg:hidden">Dashboard</div>
-                    
+
                 </div>
                 {/* Page content here */}
                 <Outlet></Outlet>
-              
+
 
                 {/* Page content here */}
 
@@ -41,10 +42,43 @@ const DashboardLayout = () => {
                 <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
                     {/* Sidebar content here */}
                     <ProFastLogo></ProFastLogo>
-                    <li><NavLink to='/'>Home</NavLink></li>
-                    <li><NavLink to='/dashboard/myParcels'>My Parcels</NavLink></li>
-                    {/* <li><NavLink>Home</NavLink></li> */}
-                    
+                    <li>
+                        <NavLink to='/'>
+                            <FaHome className='inline mr-2' /> Home
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink to='/dashboard/myParcels'>
+                            <FaBox className='inline mr-2' /> My Parcels
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink to='/dashboard/paymentHistory'>
+                            <FaHistory className='inline mr-2' /> Payment History
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink to='/dashboard/track'>
+                            <FaSearchLocation className='inline mr-2' /> Track A Package
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink to='/dashboard/profile'>
+                            <FaUserEdit className='inline mr-2' /> Update Profile
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink to='/dashboard/active-riders'>
+                            <FaUserCheck className='inline mr-2' /> Active Riders
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink to='/dashboard/pending-riders'>
+                            <FaClock className='inline mr-2' /> Pending Riders
+                        </NavLink>
+                    </li>
+
+
                 </ul>
             </div>
         </div>
