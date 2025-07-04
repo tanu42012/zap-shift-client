@@ -27,7 +27,7 @@ const ActiveRiders = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const res = await axiosSecure.patch(`/riders/${id}`, { status: "deactivated" });
+          const res = await axiosSecure.patch(`/riders/${id}`, { status: "reject" });
           if (res.data.modifiedCount > 0) {
             Swal.fire("Done!", "Rider has been deactivated.", "success");
             refetch();

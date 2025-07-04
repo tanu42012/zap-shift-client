@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import useAuth from '../../../../Hooks/useAuth';
-import { Link } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import SocialLogin from '../SocialLogin/SocialLogin';
 import axios from 'axios';
 import useAxios from '../../../../Hooks/useAxios';
@@ -11,6 +11,10 @@ const Register = () => {
     const {createUser,updateUserProfile}=useAuth();
     const [profilePic, setProfilePic]=useState('');
     const axiosInstance=useAxios();
+
+    const location = useLocation();
+  const navigate  = useNavigate();
+  const from = location.state?.from?.pathname || '/'; 
 
 
     const onSubmit = data => {
@@ -38,6 +42,7 @@ const Register = () => {
               updateUserProfile(userProfile)
               .then(()=>{
                 console.log('profile name pic updated')
+                navigate(from);
               })
               .catch(error=>{
                 console.log(error)
@@ -105,7 +110,7 @@ const Register = () => {
                         <div><a className="link link-hover">Forgot password?</a></div>
                         <button className="btn btn-neutral mt-4">Register</button>
                     </fieldset>
-                    <p ><small >Already have an Account? <Link className='btn btn-link' to='/login' >Login</Link></small></p>
+                    <p ><small >Already have an Account? <Link    state={{from}} className='btn btn-link' to='/login' >Login</Link></small></p>
                 </form>
                 <SocialLogin></SocialLogin>
             </div>

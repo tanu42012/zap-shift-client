@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router';
 import ProFastLogo from '../Pages/Home/Shared/ProfastLogo/ProFastLogo';
-import { FaHome, FaBox, FaHistory, FaSearchLocation, FaUserEdit,FaUserCheck, FaClock } from 'react-icons/fa';
+import { FaHome, FaBox, FaUserShield, FaHistory, FaSearchLocation, FaUserEdit, FaUserCheck, FaClock } from 'react-icons/fa';
 
 const DashboardLayout = () => {
     return (
@@ -77,6 +77,18 @@ const DashboardLayout = () => {
                             <FaClock className='inline mr-2' /> Pending Riders
                         </NavLink>
                     </li>
+                    <li>
+                        <NavLink
+                            to="/dashboard/make-admin"
+                            className={({ isActive }) =>
+                                `flex items-center gap-2 px-3 py-2 rounded ${isActive ? 'bg-primary text-black' : 'hover:bg-base-200'}`
+                            }
+                        >
+                            <FaUserShield />
+                            Make Admin
+                        </NavLink>
+                    </li>
+
 
 
                 </ul>

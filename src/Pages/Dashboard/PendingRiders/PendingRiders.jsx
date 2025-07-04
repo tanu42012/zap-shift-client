@@ -6,7 +6,6 @@ import { useQuery } from "@tanstack/react-query";
 
 const PendingRiders = () => {
   const axiosSecure = useAxiosSecure();
-
   const [selectedRider, setSelectedRider] = useState(null);
 
   const {
@@ -25,8 +24,9 @@ const PendingRiders = () => {
     return <p>Loading...</p>;
   }
 
-  const confirmAction = (id, status) => {
-    const isApprove = status === "approved";
+  const confirmAction = (id, action, email) => {
+    const isApprove = action === "approve";
+
     Swal.fire({
       title: isApprove ? "Approve this rider?" : "Reject this rider?",
       text: `You are about to ${isApprove ? "approve" : "reject"} this application.`,
@@ -37,17 +37,22 @@ const PendingRiders = () => {
       confirmButtonText: isApprove ? "Yes, approve" : "Yes, reject",
     }).then((result) => {
       if (result.isConfirmed) {
-        handleAction(id, status);
+        handleAction(id, action, email);
       }
     });
   };
 
-  const handleAction = async (id, status) => {
+  const handleAction = async (id, action, email) => {
     try {
-      const res = await axiosSecure.patch(`/riders/${id}`, { status });
+      const status = action === "approve" ? "active" : "reject";
+      const res = await axiosSecure.patch(`/riders/${id}`, {
+        status,
+        email,
+      });
+
       if (res.data.modifiedCount > 0) {
-        Swal.fire("Success", `Rider has been ${status}`, "success");
         refetch();
+        Swal.fire("Success", `Rider has been ${action}d`, "success");
         setSelectedRider(null);
       }
     } catch (error) {
@@ -100,7 +105,6 @@ const PendingRiders = () => {
         </div>
       )}
 
-      {/* Modal */}
       {selectedRider && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-md max-w-lg w-full shadow-lg">
@@ -129,13 +133,25 @@ const PendingRiders = () => {
             <div className="flex justify-end space-x-2">
               <button
                 className="btn btn-sm btn-error"
-                onClick={() => confirmAction(selectedRider._id, "rejected")}
+                onClick={() =>
+                  confirmAction(
+                    selectedRider._id,
+                    "reject",
+                    selectedRider.email
+                  )
+                }
               >
                 Reject
               </button>
               <button
                 className="btn btn-sm btn-success"
-                onClick={() => confirmAction(selectedRider._id, "approved")}
+                onClick={() =>
+                  confirmAction(
+                    selectedRider._id,
+                    "approve",
+                    selectedRider.email
+                  )
+                }
               >
                 Approve
               </button>
@@ -154,4 +170,3 @@ const PendingRiders = () => {
 };
 
 export default PendingRiders;
-
