@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useLoaderData } from 'react-router-dom';
+import { useLoaderData, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -28,6 +28,7 @@ export default function SendParcel() {
     const { user } = useAuth();
     // console.log(user);
     const axiosSecure=useAxiosSecure();
+    const navigate=useNavigate()
 
     const [cost, setCost] = useState(null);
     const [formData, setFormData] = useState(null);
@@ -132,11 +133,14 @@ export default function SendParcel() {
         .then(res=>{
             console.log(res.data);
             if(res.data.insertedId){
+               
+
                 Swal.fire({
                     title:'Redirecting..',
                     text:'proceeding to payment gateway',
                     timer:1500,
                 })
+                navigate('/dashboard/myParcels');
             }
         })
 

@@ -1,86 +1,4 @@
-// import React from 'react';
-// import { useQuery } from '@tanstack/react-query';
-// import useAxiosSecure from '../../../Hooks/useAxiosSecure';
-// import Swal from 'sweetalert2';
 
-// const AssignRider = () => {
-//     const axiosSecure = useAxiosSecure();
-
-//     /* 🔄 Fetch parcels ready for rider assignment */
-//     const { data: parcels = [], isLoading } = useQuery({
-//         queryKey: ['assignable-parcels'],
-//         queryFn: async () => {
-//             const res = await axiosSecure.get(
-//                 '/parcels?payment_status=paid&delivery_status=not%20collected'
-//             );
-//             return res.data;
-//         },
-//         staleTime: 0,
-//     });
-
-//     /* Placeholder for future assign logic */
-//     const handleAssign = (parcel) => {
-//         Swal.fire('TODO', `Assign Rider for ${parcel.trackingId}`, 'info');
-//         // later: open modal / call mutation / etc.
-//     };
-
-//     if (isLoading) {
-//         return <p className="text-center py-6">Loading parcels…</p>;
-//     }
-
-//     return (
-//         <div className="overflow-x-auto w-full p-4">
-//             <h2 className="text-2xl font-bold mb-4">Parcels Awaiting Rider</h2>
-
-//             <table className="table table-zebra w-full">
-//                 <thead>
-//                     <tr>
-//                         <th>#</th>
-//                         <th>Tracking ID</th>
-//                         <th>Title</th>
-//                         <th>senderRegion</th>
-//                         <th>receiverRegion</th>
-//                         <th>Cost (৳)</th>
-//                         <th>Created At</th>
-//                         <th className="text-right">Action</th>
-//                     </tr>
-//                 </thead>
-
-//                 <tbody>
-//                     {parcels.map((p, idx) => (
-//                         <tr key={p._id}>
-//                             <td>{idx + 1}</td>
-//                             <td>{p.trackingId}</td>
-//                             <td>{p.title}</td>
-//                             <td>{p.senderRegion}</td>
-//                             <td>{p.receiverRegion}</td>
-//                             <td>{p.cost}</td>
-//                             <td>{new Date(p.creation_date).toLocaleString()}</td>
-//                             <td className="flex justify-end">
-//                                 <button
-//                                     className="btn btn-sm btn-primary text-black"
-//                                     onClick={() => handleAssign(p)}
-//                                 >
-//                                     Assign Rider
-//                                 </button>
-//                             </td>
-//                         </tr>
-//                     ))}
-
-//                     {parcels.length === 0 && (
-//                         <tr>
-//                             <td colSpan={6} className="text-center py-8">
-//                                 No parcels waiting for rider
-//                             </td>
-//                         </tr>
-//                     )}
-//                 </tbody>
-//             </table>
-//         </div>
-//     );
-// };
-
-// export default AssignRider;
 import React, { useState } from 'react';
 import {
   useQuery,
@@ -271,3 +189,194 @@ const AssignRider = () => {
 };
 
 export default AssignRider;
+// import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+// import { FaMotorcycle } from "react-icons/fa";
+// import useAxiosSecure from "../../../hooks/useAxiosSecure";
+// import { useState } from "react";
+// import Swal from "sweetalert2";
+// // import useTrackingLogger from "../../../hooks/useTrackingLogger";
+// import useAuth from "../../../Hooks/useAuth";
+
+
+// const AssignRider = () => {
+//     const axiosSecure = useAxiosSecure();
+//     const [selectedParcel, setSelectedParcel] = useState(null);
+//     const [selectedRider, setSelectedRider] = useState(null);
+//     const [riders, setRiders] = useState([]);
+//     const [loadingRiders, setLoadingRiders] = useState(false);
+//     const queryClient = useQueryClient();
+//     // const { logTracking } = useTrackingLogger();
+//     const { user } = useAuth();
+
+//     const { data: parcels = [], isLoading } = useQuery({
+//         queryKey: ["assignableParcels"],
+//         queryFn: async () => {
+//             const res = await axiosSecure.get(
+//                 "/parcels?payment_status=paid&delivery_status=not_collected"
+//             );
+//             // Sort oldest first
+//             return res.data.sort(
+//                 (a, b) => new Date(a.creation_date) - new Date(b.creation_date)
+//             );
+//         },
+//     });
+
+//     const { mutateAsync: assignRider } = useMutation({
+//         mutationFn: async ({ parcelId, rider }) => {
+//             setSelectedRider(rider);
+//             const res = await axiosSecure.patch(`/parcels/${parcelId}/assign`, {
+//                 riderId: rider._id,
+//                 riderEmail: rider.email,
+//                 riderName: rider.name,
+//             });
+//             return res.data;
+//         },
+//         onSuccess: async () => {
+//             queryClient.invalidateQueries(["assignableParcels"]);
+//             Swal.fire("Success", "Rider assigned successfully!", "success");
+
+//             // track rider assigned
+//             await logTracking({
+//                 tracking_id: selectedParcel.tracking_id,
+//                 status: "rider_assigned",
+//                 details: `Assigned to ${selectedRider.name}`,
+//                 updated_by: user.email,
+//             });
+//             document.getElementById("assignModal").close();
+//         },
+//         onError: () => {
+//             Swal.fire("Error", "Failed to assign rider", "error");
+//         },
+//     });
+
+//     // Step 2: Open modal and load matching riders
+//     const openAssignModal = async (parcel) => {
+//         setSelectedParcel(parcel);
+//         setLoadingRiders(true);
+//         setRiders([]);
+
+//         try {
+//             const res = await axiosSecure.get("/riders/available", {
+//                 params: {
+//                     district: parcel.sender_center, // match with rider.district
+//                 },
+//             });
+//             setRiders(res.data);
+//         } catch (error) {
+//             console.error("Error fetching riders", error);
+//             Swal.fire("Error", "Failed to load riders", "error");
+//         } finally {
+//             setLoadingRiders(false);
+//             document.getElementById("assignModal").showModal();
+//         }
+//     };
+
+//     return (
+//         <div className="p-6">
+//             <h2 className="text-2xl font-bold mb-4">Assign Rider to Parcels</h2>
+
+//             {isLoading ? (
+//                 <p>Loading parcels...</p>
+//             ) : parcels.length === 0 ? (
+//                 <p className="text-gray-500">No parcels available for assignment.</p>
+//             ) : (
+//                 <div className="overflow-x-auto">
+//                     <table className="table table-zebra w-full">
+//                         <thead>
+//                             <tr>
+//                                 <th>Tracking ID</th>
+//                                 <th>Title</th>
+//                                 <th>Type</th>
+//                                 <th>Sender Center</th>
+//                                 <th>Receiver Center</th>
+//                                 <th>Cost</th>
+//                                 <th>Created At</th>
+//                                 <th>Action</th>
+//                             </tr>
+//                         </thead>
+//                         <tbody>
+//                             {parcels.map((parcel) => (
+//                                 <tr key={parcel._id}>
+//                                     <td>{parcel.tracking_id}</td>
+//                                     <td>{parcel.title}</td>
+//                                     <td>{parcel.type}</td>
+//                                     <td>{parcel.sender_center}</td>
+//                                     <td>{parcel.receiver_center}</td>
+//                                     <td>৳{parcel.cost}</td>
+//                                     <td>{new Date(parcel.creation_date).toLocaleDateString()}</td>
+//                                     <td>
+//                                         <button
+//                                             onClick={() => openAssignModal(parcel)}
+//                                             className="btn btn-sm btn-primary text-black">
+//                                             <FaMotorcycle className="inline-block mr-1" />
+//                                             Assign Rider
+//                                         </button>
+//                                     </td>
+//                                 </tr>
+//                             ))}
+//                         </tbody>
+//                     </table>
+//                     {/* 🛵 Assign Rider Modal */}
+//                     <dialog id="assignModal" className="modal">
+//                         <div className="modal-box max-w-2xl">
+//                             <h3 className="text-lg font-bold mb-3">
+//                                 Assign Rider for Parcel:{" "}
+//                                 <span className="text-primary">{selectedParcel?.title}</span>
+//                             </h3>
+
+//                             {loadingRiders ? (
+//                                 <p>Loading riders...</p>
+//                             ) : riders.length === 0 ? (
+//                                 <p className="text-error">No available riders in this district.</p>
+//                             ) : (
+//                                 <div className="overflow-x-auto max-h-80 overflow-y-auto">
+//                                     <table className="table table-sm">
+//                                         <thead>
+//                                             <tr>
+//                                                 <th>Name</th>
+//                                                 <th>Phone</th>
+//                                                 <th>Bike Info</th>
+//                                                 <th>Action</th>
+//                                             </tr>
+//                                         </thead>
+//                                         <tbody>
+//                                             {riders.map((rider) => (
+//                                                 <tr key={rider._id}>
+//                                                     <td>{rider.name}</td>
+//                                                     <td>{rider.phone}</td>
+//                                                     <td>
+//                                                         {rider.bike_brand} - {rider.bike_registration}
+//                                                     </td>
+//                                                     <td>
+//                                                         <button
+//                                                             onClick={() =>
+//                                                                 assignRider({
+//                                                                     parcelId: selectedParcel._id,
+//                                                                     rider,
+//                                                                 })
+//                                                             }
+//                                                             className="btn btn-xs btn-success">
+//                                                             Assign
+//                                                         </button>
+//                                                     </td>
+//                                                 </tr>
+//                                             ))}
+//                                         </tbody>
+//                                     </table>
+//                                 </div>
+//                             )}
+
+//                             <div className="modal-action">
+//                                 <form method="dialog">
+//                                     <button className="btn">Close</button>
+//                                 </form>
+//                             </div>
+//                         </div>
+//                     </dialog>
+//                 </div>
+//             )}
+//         </div>
+//     );
+// };
+
+// export default AssignRider;
